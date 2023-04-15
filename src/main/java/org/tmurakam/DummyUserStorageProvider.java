@@ -14,8 +14,12 @@ import org.keycloak.storage.user.UserLookupProvider;
 import java.util.stream.Stream;
 
 public class DummyUserStorageProvider implements UserStorageProvider, UserLookupProvider, CredentialInputUpdater {
+    private static final String REALM = "myrealm";
+
     private final KeycloakSession session;
     private final ComponentModel model;
+
+    private final UserRepository repository = new UserRepository();
 
     public DummyUserStorageProvider(KeycloakSession session, ComponentModel model) {
         this.session = session;
@@ -36,7 +40,15 @@ public class DummyUserStorageProvider implements UserStorageProvider, UserLookup
 
     @Override
     public UserModel getUserByEmail(RealmModel realm, String email) {
-        return null;
+        if (!realm.getName().equals(REALM)) return null;
+        return toUserModel(realm, repository.findUserByEmail(email));
+    }
+
+    private UserModel toUserModel(RealmModel realm, User user) {
+        if (user == null) {
+            return null;
+        }
+        return new UserAdapter(session, realm, model, user);
     }
 
     // CredentialInputUpdater
@@ -52,8 +64,12 @@ public class DummyUserStorageProvider implements UserStorageProvider, UserLookup
             return false;
         }
         UserCredentialModel cred = (UserCredentialModel) input;
-        // TODO:
-        return false;
+
+        User u = repository.findUserByEmail(user.getEmail());
+        if (u == null) {
+            return false;
+        }
+        return repository.updateCredentials(u, cred.getChallengeResponse());
     }
 
     @Override

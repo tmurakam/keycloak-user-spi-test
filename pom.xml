@@ -9,7 +9,7 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <keycloak.version>20.0.0</keycloak.version>
+        <keycloak.version>20.0.4</keycloak.version>
         <maven-compiler.release>17</maven-compiler.release>
         <maven-compiler.version>3.10.1</maven-compiler.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
