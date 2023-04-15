@@ -1,13 +1,17 @@
 package org.tmurakam;
 
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.LegacyUserCredentialManager;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.SubjectCredentialManager;
+import org.keycloak.models.UserModel;
+import org.keycloak.storage.ReadOnlyException;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.adapter.AbstractUserAdapter;
 
+@Slf4j
 public class UserAdapter extends AbstractUserAdapter {
     private final User user;
 
@@ -45,5 +49,17 @@ public class UserAdapter extends AbstractUserAdapter {
     @Override
     public Long getCreatedTimestamp() {
         return user.getCreated();
+    }
+
+    // This is required to implement password reset
+    @Override
+    public void removeRequiredAction(String action) {
+        log.info("removeRequiredAction: {}", action);
+    }
+
+    // This is required to implement password reset
+    @Override
+    public void removeRequiredAction(UserModel.RequiredAction action) {
+        log.info("removeRequiredAction: {}", action);
     }
 }
