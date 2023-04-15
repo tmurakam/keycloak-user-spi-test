@@ -3,17 +3,16 @@ package org.tmurakam;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputUpdater;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserCredentialModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
+import org.keycloak.storage.user.UserQueryProvider;
 
+import java.util.Map;
 import java.util.stream.Stream;
 
-public class DummyUserStorageProvider implements UserStorageProvider, UserLookupProvider, CredentialInputUpdater {
+public class DummyUserStorageProvider implements UserStorageProvider, UserQueryProvider, UserLookupProvider, CredentialInputUpdater {
     private static final String REALM = "myrealm";
 
     private final KeycloakSession session;
@@ -83,5 +82,35 @@ public class DummyUserStorageProvider implements UserStorageProvider, UserLookup
 
     @Override
     public void close() {
+    }
+
+    // UserQueryProvider
+
+    @Override
+    public Stream<UserModel> searchForUserStream(RealmModel realm, String query) {
+        return repository.getAllUsers().stream()
+                .filter(user -> query.equals("*") || user.getUsername().contains(query) || user.getEmail().contains(query))
+                .map(user -> toUserModel(realm, user));
+    }
+
+    @Override
+    public Stream<UserModel> searchForUserStream(RealmModel realm, String search, Integer firstResult, Integer maxResults) {
+        return searchForUserStream(realm, search);
+    }
+
+    @Override
+    public Stream<UserModel> searchForUserStream(RealmModel realm, Map<String, String> params, Integer firstResult, Integer maxResults) {
+        return repository.getAllUsers().stream()
+                .map(user -> toUserModel(realm, user));
+    }
+
+    @Override
+    public Stream<UserModel> getGroupMembersStream(RealmModel realmModel, GroupModel groupModel, Integer integer, Integer integer1) {
+        return Stream.empty();
+    }
+
+    @Override
+    public Stream<UserModel> searchForUserByUserAttributeStream(RealmModel realmModel, String s, String s1) {
+        return Stream.empty();
     }
 }
