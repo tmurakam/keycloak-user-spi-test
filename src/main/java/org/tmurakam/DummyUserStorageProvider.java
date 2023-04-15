@@ -6,6 +6,7 @@ import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputUpdater;
 import org.keycloak.models.*;
 import org.keycloak.models.credential.PasswordCredentialModel;
+import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
@@ -31,8 +32,8 @@ public class DummyUserStorageProvider implements UserStorageProvider, UserQueryP
     @Override
     public UserModel getUserById(RealmModel realm, String id) {
         log.info("getUserById: {}", id);
-        //String externalId = StorageId.externalId(id);
-        return null;
+        String externalId = StorageId.externalId(id);
+        return toUserModel(realm, repository.findUserById(externalId));
     }
 
     @Override
