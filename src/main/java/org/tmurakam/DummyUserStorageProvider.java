@@ -1,5 +1,6 @@
 package org.tmurakam;
 
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputUpdater;
@@ -12,6 +13,7 @@ import org.keycloak.storage.user.UserQueryProvider;
 import java.util.Map;
 import java.util.stream.Stream;
 
+@Slf4j
 public class DummyUserStorageProvider implements UserStorageProvider, UserQueryProvider, UserLookupProvider, CredentialInputUpdater {
     private static final String REALM = "myrealm";
 
@@ -28,17 +30,20 @@ public class DummyUserStorageProvider implements UserStorageProvider, UserQueryP
     // UserLookupProvider
     @Override
     public UserModel getUserById(RealmModel realm, String id) {
+        log.info("getUserById: {}", id);
         //String externalId = StorageId.externalId(id);
         return null;
     }
 
     @Override
     public UserModel getUserByUsername(RealmModel realm, String username) {
+        log.info("getUserByUsername: {}", username);
         return null;
     }
 
     @Override
     public UserModel getUserByEmail(RealmModel realm, String email) {
+        log.info("getUserByEmail: {}", email);
         if (!realm.getName().equals(REALM)) return null;
         return toUserModel(realm, repository.findUserByEmail(email));
     }
@@ -59,6 +64,7 @@ public class DummyUserStorageProvider implements UserStorageProvider, UserQueryP
 
     @Override
     public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
+        log.info("updateCredential: email={}", user.getEmail());
         if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) {
             return false;
         }
@@ -88,6 +94,7 @@ public class DummyUserStorageProvider implements UserStorageProvider, UserQueryP
 
     @Override
     public Stream<UserModel> searchForUserStream(RealmModel realm, String query) {
+        log.info("searchForUserStream: {}", query);
         return repository.getAllUsers().stream()
                 .filter(user -> query.equals("*") || user.getUsername().contains(query) || user.getEmail().contains(query))
                 .map(user -> toUserModel(realm, user));
@@ -100,6 +107,7 @@ public class DummyUserStorageProvider implements UserStorageProvider, UserQueryP
 
     @Override
     public Stream<UserModel> searchForUserStream(RealmModel realm, Map<String, String> params, Integer firstResult, Integer maxResults) {
+        log.info("searchForUserStream");
         return repository.getAllUsers().stream()
                 .map(user -> toUserModel(realm, user));
     }
